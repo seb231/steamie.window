@@ -1,0 +1,7 @@
+(ns steamie.window-test
+  (:require [clojure.test :refer :all]
+            [steamie.window :refer :all]))
+
+(deftest a-test
+  (testing "FIXME, I fail."
+    (is (= 0 1))))
