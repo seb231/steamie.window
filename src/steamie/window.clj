@@ -6,6 +6,12 @@
 
 (def steam-URL "https://steamcommunity.com/profiles/")
 
+(def config (read-string (slurp (str "config.edn"))))
+
+(def k (:api-key config))
+
+(def acron-id (:id (:acron config)))
+
 (defn rand-4-digit-number [] ;;;; WIP ;;;;
   (+ (rand-int 1001) 9999))
 
@@ -15,22 +21,27 @@
 (defn generate-steam-URL []
   (str steam-URL (generate-steam-id-query steam-string-starter) "/"))
 
-(defn -main
-  "I don't do a whole lot ... yet."
-  [& args]
-  (println "Hello, World!"))
+(defn get-friends-list [steam-id]
+  (map :steamid (get-in (steam/friend-list k steam-id) [:friendslist :friends])))
 
-(comment 
-  
-  (def acrons-friends (steam/friend-list k (:id acron)))
-  
-  (def acrons-friends-ids (map :steamid (get-in acrons-friends [:friendslist :friends])))
+(defn get-games [owned-games]
+  (get-in owned-games [:response :games]))
 
-  (def test-game-data (map #(steam/owned-games k %) acrons-friends-ids))
+(defn get-games-list [owned-games]
+  (map :appid (get-games owned-games)))
 
-  (def first_example (map :appid (get-in (first foo) [:response :games])))
+(defn shared-games [seq1 seq2] (clojure.set/intersection (set seq1) (set seq2)))
 
-  (def second_example (map :appid (get-in (second foo) [:response :games])))
+(defn filter-by-shared-games [shared-games owned-games]
+  (filter #(= shared-games (:appid %)) (get-games owned-games)))
 
-  (diff first_example second_example)
-)
+(defn -main []
+  (let [acrons-friends-ids (get-friends-list acron-id)
+        acrons-friends-game-data (map #(steam/owned-games k %) acrons-friends-ids)
+        friend-count (count acrons-friends-game-data)
+        rand-friend-1 (nth acrons-friends-game-data (rand-int (dec friend-count)))
+        rand-friend-2 (nth acrons-friends-game-data (rand-int (dec friend-count)))]
+    (->> (shared-games (get-games-list rand-friend-1) (get-games-list rand-friend-2))
+         (map #(filter-by-shared-games % rand-friend-2)))))
+
+;;; Need to do this to both friends and then compare the playtime in some way
