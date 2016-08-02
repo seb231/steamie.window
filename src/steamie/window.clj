@@ -53,8 +53,11 @@
         acrons-friends-game-data (map #(steam/owned-games k %) acrons-friends-ids)
         friend-count (count acrons-friends-game-data)
         rand-friend-1 (nth acrons-friends-game-data (rand-int (dec friend-count)))
-        rand-friend-2 (nth acrons-friends-game-data (rand-int (dec friend-count)))]
-    (->> (shared-games (get-games-list rand-friend-1) (get-games-list rand-friend-2))
-         (map #(filter-by-shared-games % rand-friend-2)))))
+        rand-friend-2 (nth acrons-friends-game-data (rand-int (dec friend-count)))
+        comparison (shared-games (get-games-list rand-friend-1) (get-games-list rand-friend-2))]
+    (hash-map :rand-friend-1 (map #(filter-by-shared-games % rand-friend-1) comparison)
+              :rand-friend-2 (map #(filter-by-shared-games % rand-friend-2) comparison))))
 
 ;;; Need to do this to both friends and then compare the playtime in some way
+;;; need to flatten maps of games per user
+;;; if hours played is 5 or less than need to not use poisson and just bin them together
