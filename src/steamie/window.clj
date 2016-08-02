@@ -35,6 +35,19 @@
 (defn filter-by-shared-games [shared-games owned-games]
   (filter #(= shared-games (:appid %)) (get-games owned-games)))
 
+(defn poisson-sd [mean]
+  (Math/sqrt mean))
+
+(defn poisson-ci [poisson-distribution]
+  (* 1.96 poisson-distribution))
+
+(defn poisson-di [mean]
+  (let [sd (poisson-sd mean)
+        ci (poisson-ci sd)
+        _ (prn ci)]
+    (hash-map :lower (- mean ci)
+              :upper (+ mean ci))))
+
 (defn -main []
   (let [acrons-friends-ids (get-friends-list acron-id)
         acrons-friends-game-data (map #(steam/owned-games k %) acrons-friends-ids)
