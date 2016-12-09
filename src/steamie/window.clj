@@ -14,7 +14,7 @@
 (defn get-games-list [owned-games]
   (map :appid (get-games owned-games)))
 
-(defn shared-games [seq1 seq2] (clojure.set/intersection (set seq1) (set seq2)))
+(defn shared-games [seq1 seq2] (set/intersection (set seq1) (set seq2)))
 
 (defn filter-by-shared-games [shared-games owned-games]
   (filter #(= shared-games (:appid %)) (get-games owned-games)))
@@ -27,8 +27,7 @@
 
 (defn poisson-di [mean]
   (let [sd (poisson-sd mean)
-        ci (poisson-ci sd)
-        _ (prn ci)]
+        ci (poisson-ci sd)]
     (hash-map :lower (- mean ci)
               :upper (+ mean ci))))
 
