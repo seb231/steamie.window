@@ -2,7 +2,11 @@
   (:require [steamweb.core :as steam]
             [clojure.set :as set]))
 
-(def k (:api-key (read-string (slurp (str "config.edn"))))) ;; need to move this to env var
+(def config (read-string (slurp (str "config.edn"))))
+
+(def k (:api-key configq)) ;; need to move this to env var
+
+(def acron-id (:id (:acron config)))
 
 (defn get-friends-list [key steam-id]
   (map :steamid (get-in (steam/friend-list key steam-id) [:friendslist :friends])))
