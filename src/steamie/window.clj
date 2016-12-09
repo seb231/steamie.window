@@ -31,6 +31,16 @@
     (hash-map :lower (- mean ci)
               :upper (+ mean ci))))
 
+(defn build-profile
+  [key id]
+  (->> (steam/owned-games key id)
+       get-games
+       (remove (comp #(< % 60) :playtime_forever))
+       (map #(select-keys % [:appid :playtime_forever]))
+       (sort-by :playtime_forever)
+       reverse
+       (map #(assoc % :poisson (poisson-di (:playtime_forever %))))))
+
 (defn -main []
   (let [acrons-friends-ids (get-friends-list acron-id)
         acrons-friends-game-data (map #(steam/owned-games k %) acrons-friends-ids)
