@@ -8,9 +8,6 @@
 
 (def acron-id (:id (:acron config)))
 
-(defn get-friends-list [steam-id]
-  (map :steamid (get-in (steam/friend-list k steam-id) [:friendslist :friends])))
-
 (defn get-games [owned-games]
   (get-in owned-games [:response :games]))
 
