@@ -1,6 +1,6 @@
 (ns steamie.window
-  (:require [steamweb.core :as steam])
-  (:gen-class))
+  (:require [steamweb.core :as steam]
+            [clojure.set :as set]))
 
 (def config (read-string (slurp (str "config.edn"))))
 
