@@ -1,25 +1,42 @@
 (ns steamie.window
-  (:gen-class))
+  (:require [steamweb.core :as steam]
+            [clojure.set :as set]))
 
-(def seb "https://steamcommunity.com/profiles/76561198076420895/")
+(def config (read-string (slurp (str "config.edn"))))
 
-(def acron {:name "https://steamcommunity.com/id/acron"
-            :number "https://steamcommunity.com/profiles/76561197960375033/"})
+(def k (:api-key config))
 
-(def seventeen-string-starter "7656119")
+(def acron-id (:id (:acron config)))
 
-(def steam-URL "https://steamcommunity.com/profiles/")
+(defn get-games [owned-games]
+  (get-in owned-games [:response :games]))
 
-(defn rand-5-str-number [] ;;;; WIP ;;;;
-  (+ (rand-int 10001) 99999))
+(defn get-games-list [owned-games]
+  (map :appid (get-games owned-games)))
 
-(defn generate-steam-id-query [starter]
-  (str starter (rand-5-str-number) (rand-5-str-number)))
+(defn shared-games [seq1 seq2] (set/intersection (set seq1) (set seq2)))
 
-(defn generate-steam-URL []
-  (str steam-URL (generate-steam-id-query seventeen-string-starter) "/"))
+(defn filter-by-shared-games [shared-games owned-games]
+  (filter #(= shared-games (:appid %)) (get-games owned-games)))
 
-(defn -main
-  "I don't do a whole lot ... yet."
-  [& args]
-  (println "Hello, World!"))
+(defn poisson-sd [mean]
+  (Math/sqrt mean))
+
+(defn poisson-ci [poisson-distribution]
+  (* 1.96 poisson-distribution))
+
+(defn poisson-di [mean]
+  (let [sd (poisson-sd mean)
+        ci (poisson-ci sd)]
+    (hash-map :lower (- mean ci)
+              :upper (+ mean ci))))
+
+(defn build-profile
+  [key id]
+  (->> (steam/owned-games key id)
+       get-games
+       (remove (comp #(< % 60) :playtime_forever))
+       (map #(select-keys % [:appid :playtime_forever]))
+       (map #(assoc % :poisson (poisson-di (:playtime_forever %))))))
+
+;; for each game in the profile search the database for users
