@@ -1,23 +1,10 @@
 (ns steamie.window
   (:require [steamweb.core :as steam]
-            [clojure.set :as set]))
-
-(def config (read-string (slurp (str "config.edn"))))
-
-(def k (:api-key config))
-
-(def acron-id (:id (:acron config)))
+            [clojure.set :as set]
+            [steamie.database :refer :all]))
 
 (defn get-games [owned-games]
   (get-in owned-games [:response :games]))
-
-(defn get-games-list [owned-games]
-  (map :appid (get-games owned-games)))
-
-(defn shared-games [seq1 seq2] (set/intersection (set seq1) (set seq2)))
-
-(defn filter-by-shared-games [shared-games owned-games]
-  (filter #(= shared-games (:appid %)) (get-games owned-games)))
 
 (defn poisson-sd [mean]
   (Math/sqrt mean))
@@ -33,10 +20,42 @@
 
 (defn build-profile
   [key id]
-  (->> (steam/owned-games key id)
+  (->> (steam/owned-games (System/getenv key) id)
        get-games
        (remove (comp #(< % 60) :playtime_forever))
        (map #(select-keys % [:appid :playtime_forever]))
        (map #(assoc % :poisson (poisson-di (:playtime_forever %))))))
 
-;; for each game in the profile search the database for users
+(defn get-games-out-db [user-db]
+  (map #(:appid %) (:games (first (vals user-db)))))
+
+(defn search-game [appid list-games]
+  ((complement nil?) (some #{appid} list-games)))
+
+(defn match-game [appid user-db]
+  (if (search-game appid (get-games-out-db user-db))
+    (keys user-db)))
+
+;;; if null returns an empty vector, need to drop
+(defn users-with-matching-game [appid users]
+  (reduce into [] (map #(match-game appid %) users)))
+
+(defn search-for-matching-games [user-profile user-db]
+  (let [list-of-games (map #(:appid %) user-profile)]
+    (map (fn [appid] (hash-map (keyword (str appid))
+                               (users-with-matching-game appid user-db)))
+         list-of-games)))
+
+(defn -main [k user]
+  (let [profile (build-profile k user)
+        database (collect-database k user)]
+    (search-for-matching-games profile database)))
+
+;;; rather than doing another search, I may also want do the playtime comparison at the same time
+;;; so a success looks matching playtime rather than just same games shared
+;;; this will reduce the number of times I have to search over the database
+;;; so maybe in the search the playtime of the user-profile needs to be included with the appid
+;;; once we have the map of games with players with similar playtimes then there needs to maybe
+;;; be second search (could this be reduced by keeping all this info somehwere?) whereby all the
+;;; games not played by the user-profile are concanenated but which are shared in the database.
+;;; This could be the list of games returned to the user.

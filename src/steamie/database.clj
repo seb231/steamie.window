@@ -1,33 +1,35 @@
 (ns steamie.database
   (:require [steamweb.core :as steam]
-            [clojure.set :as set]))
+            [clojure.set :as set]
+            [criterium.core :as crit]))
 
-(def config (read-string (slurp (str "config.edn"))))
+(defn get-friends-list [api-key steam-id]
+  (map :steamid (get-in (steam/friend-list (System/getenv api-key) steam-id) [:friendslist :friends])))
 
-(def k (:api-key configq)) ;; need to move this to env var
-
-(def acron-id (:id (:acron config)))
-
-(defn get-friends-list [key steam-id]
-  (map :steamid (get-in (steam/friend-list key steam-id) [:friendslist :friends])))
-
-(defn database-collection
-  [k id]
-  (let [init (get-friends-list k id)]
-    (->> init
-         (mapcat #(get-friends-list k %))
-         distinct)))
+(defn collect-users
+  "Collect a list of users"
+  [api-key starting-id]
+  (let [init (get-friends-list api-key starting-id)
+        first-pass (->> init
+                        (mapcat #(get-friends-list api-key %))
+                        distinct)]
+    first-pass
+    #_(->> first-pass
+           (mapcat #(database-collection k %))
+           distinct)))
 
 (defn collect-database
-  "Collect a list of users"
-  [k starting-id]
-  (let [first-pass (database-collection k starting-id)]
-    (->> first-pass
-         (mapcat #(database-collection k %))
-         distinct)))
+  [k user-list]
+  (map #(-> (steam/owned-games (System/getenv k) %)
+            (set/rename-keys  {:response (keyword %)}))
+       user-list))
 
 (defn build-database
-  [k users]
-  (map #(-> (steam/owned-games k %)
-            (set/rename-keys  {:response (keyword %)}))
-       users))
+  [k starting-id]
+  (let [user-list (collect-users k starting-id)]
+    (collect-database k user-list)))
+
+(comment
+
+  "run like"
+  (build-database "STEAM_API_KEY" (System/getenv "ACRON")))
