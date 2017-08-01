@@ -30,3 +30,7 @@
 (deftest search-for-matching-games-test
   ""
   (is (= 20 (count (search-for-matching-games example-user-profile example-database)))))
+
+#_(deftest main-test
+    ""
+    (is (= )))
