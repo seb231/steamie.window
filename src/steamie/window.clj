@@ -51,6 +51,12 @@
         database (collect-database k user)]
     (search-for-matching-games profile database)))
 
+(comment
+
+  "run like"
+  (-main "STEAM_API_KEY" (System/getenv "ACRON")))
+
+;;; TODO
 ;;; rather than doing another search, I may also want do the playtime comparison at the same time
 ;;; so a success looks matching playtime rather than just same games shared
 ;;; this will reduce the number of times I have to search over the database

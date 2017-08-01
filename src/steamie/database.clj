@@ -28,8 +28,3 @@
   [k starting-id]
   (let [user-list (collect-users k starting-id)]
     (collect-database k user-list)))
-
-(comment
-
-  "run like"
-  (build-database "STEAM_API_KEY" (System/getenv "ACRON")))
