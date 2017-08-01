@@ -48,7 +48,7 @@
 
 (defn -main [k user]
   (let [profile (build-profile k user)
-        database (collect-database k user)]
+        database (build-database k user)]
     (search-for-matching-games profile database)))
 
 (comment
