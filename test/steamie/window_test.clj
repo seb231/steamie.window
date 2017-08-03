@@ -12,7 +12,8 @@
 
 (deftest get-games-out-db-test
   ""
-  (get-games-out-db (first example-database)))
+  (= '(10 20 30 40 50 60 70 130 220 240)
+     (get-games-out-db (first example-database))))
 
 (deftest search-game-test
   ""
@@ -28,9 +29,8 @@
          (users-with-matching-game 10 example-database))))
 
 (deftest search-for-matching-games-test
-  ""
-  (is (= 20 (count (search-for-matching-games example-user-profile example-database)))))
-
-#_(deftest main-test
+  (let [result (search-for-matching-games example-user-profile example-database)]
     ""
-    (is (= )))
+    (is (= 3 (count result)))
+    ""
+    (is (= 3 (count (first (vals (first result))))))))
