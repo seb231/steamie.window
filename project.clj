@@ -4,8 +4,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [steamweb "0.1.0"]
-                 [criterium "0.4.4"]]
+                 [steamweb "0.1.0"]]
   :main ^:skip-aot steamie.window
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
