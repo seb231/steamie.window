@@ -41,10 +41,11 @@
   (reduce into [] (map #(match-game appid %) users)))
 
 (defn search-for-matching-games [user-profile user-db]
-  (let [list-of-games (map #(:appid %) user-profile)]
-    (map (fn [appid] (hash-map (keyword (str appid))
-                               (users-with-matching-game appid user-db)))
-         list-of-games)))
+  (let [list-of-games (map #(:appid %) user-profile)
+        search-results (map (fn [appid] (hash-map (keyword (str appid))
+                                                  (users-with-matching-game appid user-db)))
+                            list-of-games)]
+    (filter #(if ((complement empty?) (first (vals %))) %) search-results)))
 
 (defn -main [k user]
   (let [profile (build-profile k user)
