@@ -13,8 +13,8 @@
 
 (deftest get-games-out-db-test
   ""
-  (= '(10 20 30 40 50 60 70 130 220 240)
-     (get-games-out-db (first example-database))))
+  (is (= '({:time 72, :appid 10} {:time 0, :appid 20} {:time 0, :appid 30} {:time 0, :appid 40} {:time 64, :appid 50} {:time 0, :appid 60} {:time 0, :appid 70} {:time 0, :appid 130} {:time 430, :appid 220} {:time 6, :appid 240})
+         (get-games-out-db (first example-database)))))
 
 (deftest own-game-test
   ""

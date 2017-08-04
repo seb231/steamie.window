@@ -77,12 +77,8 @@
   "run like"
   (-main "STEAM_API_KEY" (System/getenv "ACRON")))
 
-;;; TODO
-;;; rather than doing another search, I may also want do the playtime comparison at the same time
-;;; so a success looks matching playtime rather than just same games shared
-;;; this will reduce the number of times I have to search over the database
-;;; so maybe in the search the playtime of the user-profile needs to be included with the appid
-;;; once we have the map of games with players with similar playtimes then there needs to maybe
-;;; be second search (could this be reduced by keeping all this info somehwere?) whereby all the
-;;; games not played by the user-profile are concanenated but which are shared in the database.
-;;; This could be the list of games returned to the user.
+;; TODO
+;; -main currently returns a list of users who have played the game of the profiled
+;; user for roughly the same amount of time
+;; What it needs to do is return a list of games shared by though users, that the
+;; profiled user doesn't own
