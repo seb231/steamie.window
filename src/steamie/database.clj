@@ -1,7 +1,6 @@
 (ns steamie.database
   (:require [steamweb.core :as steam]
-            [clojure.set :as set]
-            [criterium.core :as crit]))
+            [clojure.set :as set]))
 
 (defn get-friends-list [api-key steam-id]
   (map :steamid (get-in (steam/friend-list (System/getenv api-key) steam-id) [:friendslist :friends])))

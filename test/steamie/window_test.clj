@@ -1,6 +1,7 @@
 (ns steamie.window-test
   (:require [clojure.test :refer :all]
-            [steamie.window :refer :all]))
+            [steamie.window :refer :all]
+            [steamie.database :refer :all]))
 
 (def example-user-profile
   "this is example output of build-profile"
