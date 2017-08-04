@@ -9,7 +9,7 @@
 
 (def example-database
   "this is example output of collect-database"
-  '({:76561197960375033 {:game_count 10, :games [{:appid 10, :playtime_forever 72} {:appid 20, :playtime_forever 0} {:appid 30, :playtime_forever 0} {:appid 40, :playtime_forever 0} {:appid 50, :playtime_forever 64} {:appid 60, :playtime_forever 0} {:appid 70, :playtime_forever 0} {:appid 130, :playtime_forever 0} {:appid 220, :playtime_forever 430} {:appid 240, :playtime_forever 6}]}} {:76561197960667429 {:game_count 10, :games [{:appid 550, :playtime_forever 900} {:appid 20, :playtime_forever 0} {:appid 30, :playtime_forever 0} {:appid 40, :playtime_forever 0} {:appid 50, :playtime_forever 0} {:appid 60, :playtime_forever 0} {:appid 70, :playtime_forever 1} {:appid 130, :playtime_forever 0} {:appid 80, :playtime_forever 0} {:appid 100, :playtime_forever 0}]}} {:76561197969555013 {:game_count 10, :games [{:appid 10, :playtime_forever 0} {:appid 20, :playtime_forever 0} {:appid 30, :playtime_forever 0} {:appid 40, :playtime_forever 0} {:appid 50, :playtime_forever 64} {:appid 60, :playtime_forever 0} {:appid 70, :playtime_forever 0} {:appid 130, :playtime_forever 0} {:appid 220, :playtime_forever 430} {:appid 240, :playtime_forever 6}]}}))
+  '({:76561197960375033 {:game_count 10, :games [{:appid 10, :playtime_forever 72} {:appid 20, :playtime_forever 0} {:appid 30, :playtime_forever 0} {:appid 40, :playtime_forever 0} {:appid 50, :playtime_forever 64} {:appid 60, :playtime_forever 0} {:appid 70, :playtime_forever 0} {:appid 130, :playtime_forever 0} {:appid 220, :playtime_forever 430} {:appid 240, :playtime_forever 6}]}} {:76561197960667429 {:game_count 10, :games [{:appid 550, :playtime_forever 900} {:appid 20, :playtime_forever 0} {:appid 30, :playtime_forever 0} {:appid 40, :playtime_forever 0} {:appid 50, :playtime_forever 0} {:appid 60, :playtime_forever 0} {:appid 70, :playtime_forever 1} {:appid 130, :playtime_forever 0} {:appid 80, :playtime_forever 0} {:appid 100, :playtime_forever 0}]}} {:76561197969555013 {:game_count 10, :games [{:appid 10, :playtime_forever 79} {:appid 20, :playtime_forever 0} {:appid 30, :playtime_forever 0} {:appid 40, :playtime_forever 0} {:appid 50, :playtime_forever 64} {:appid 60, :playtime_forever 0} {:appid 70, :playtime_forever 0} {:appid 130, :playtime_forever 0} {:appid 220, :playtime_forever 430} {:appid 240, :playtime_forever 6}]}}))
 
 (deftest get-games-out-db-test
   ""
@@ -26,17 +26,18 @@
 
 (deftest match-time-test
   ""
-  (is (= {:76561197960375033 {:time 50, :appid 10}}
-         (match-time {:appid 10, :playtime_forever 65, :poisson {:upper 80.80202518666516, :lower 49.197974813334845}} {:76561197960375033 {:time 50, :appid 10}}) )))
+  (is (= {:76561197960375033 {:time 50}}
+         (match-time {:appid 10, :playtime_forever 65, :poisson {:upper 80.80202518666516, :lower 49.197974813334845}} {:76561197960375033 {:time 50}}) )))
 
 (deftest users-with-matching-game-test
   ""
-  (is (= {:76561197960375033 {:time 72}}
+  (is (= '({:76561197960375033 {:time 72}, :games [10 20 30 40 50 60 70 130 220 240]} {:76561197969555013 {:time 79}, :games [10 20 30 40 50 60 70 130 220 240]})
          (users-with-matching-game {:appid 10, :playtime_forever 65, :poisson {:upper 80.80202518666516, :lower 49.197974813334845}} example-database))))
 
 (deftest search-for-matching-games-test
-  (let [result (search-for-matching-games example-user-profile example-database)]
+  (let [game-list (map :appid example-user-profile)
+        result (search-for-matching-games example-user-profile game-list example-database)]
     ""
     (is (= 2 (count result)))
     ""
-    (is (= [{:10 {:76561197960375033 {:time 72}}} {:550 {:76561197960667429 {:time 900}}}] result))))
+    (is (= result ' [{:10 ({:76561197960375033 {:time 72}, :games [10 20 30 40 50 60 70 130 220 240]} {:76561197969555013 {:time 79}, :games [10 20 30 40 50 60 70 130 220 240]})} {:550 ({:76561197960667429 {:time 900}, :games [550 20 30 40 50 60 70 130 80 100]})}]))))
