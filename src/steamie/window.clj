@@ -18,6 +18,11 @@
     (hash-map :lower (- mean ci)
               :upper (+ mean ci))))
 
+(defn is-number-in-range? [n lower upper]
+  (cond (<= lower n)
+        (>= upper n)
+        :else false))
+
 (defn build-profile
   [key id]
   (->> (steam/owned-games (System/getenv key) id)
@@ -27,25 +32,40 @@
        (map #(assoc % :poisson (poisson-di (:playtime_forever %))))))
 
 (defn get-games-out-db [user-db]
-  (map #(:appid %) (:games (first (vals user-db)))))
+  (map #(hash-map :appid (:appid %)
+                  :time (:playtime_forever %))
+       (:games (first (vals user-db)))))
 
-(defn search-game [appid list-games]
-  ((complement nil?) (some #{appid} list-games)))
+(defn own-game? [appid list-games]
+  ((complement nil?) (some #{appid} (map :appid list-games))))
 
 (defn match-game [appid user-db]
-  (if (search-game appid (get-games-out-db user-db))
-    (keys user-db)))
+  (if (own-game? appid (get-games-out-db user-db))
+    (hash-map (first (keys user-db))
+              (dissoc (first (filter #(= (:appid %) appid) (get-games-out-db user-db))) :appid))))
 
-;;; if null returns an empty vector, need to drop
-(defn users-with-matching-game [appid users]
-  (reduce into [] (map #(match-game appid %) users)))
+(defn not-nil? [x]
+  ((complement nil?) x))
+
+(defn match-time [distribution user]
+  (let [upper (get-in distribution [:poisson :upper])
+        lower (get-in distribution [:poisson :lower])]
+    (if (not-nil? user)
+      (if (is-number-in-range? (:time (first (vals user)))
+                               lower
+                               upper)
+        user))))
+
+(defn users-with-matching-game [app users]
+  (reduce into {} (map #(->> %
+                             (match-game (:appid app))
+                             (match-time app)) users)))
 
 (defn search-for-matching-games [user-profile user-db]
-  (let [list-of-games (map #(:appid %) user-profile)
-        search-results (map (fn [appid] (hash-map (keyword (str appid))
-                                                  (users-with-matching-game appid user-db)))
-                            list-of-games)]
-    (filter #(if ((complement empty?) (first (vals %))) %) search-results)))
+  (let [search-results (map #(hash-map (keyword (str (:appid %)))
+                                       (users-with-matching-game % user-db))
+                            user-profile)]
+    (filterv #(if ((complement empty?) (first (vals %))) %) search-results)))
 
 (defn -main [k user]
   (let [profile (build-profile k user)
