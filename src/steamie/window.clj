@@ -74,8 +74,9 @@
 
 (defn -main [k user]
   (let [profile (build-profile k user)
+        profile-game-list (mapv :appid profile)
         database (build-database k user)]
-    (search-for-matching-games profile database)))
+    (search-for-matching-games profile profile-game-list database)))
 
 (comment
 
