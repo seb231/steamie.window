@@ -66,6 +66,7 @@
                              (assoc result :games games)))
                         users)))
 ;; TODO need to use game-list to return a users games which are not in this list
+;; another function following search?
 (defn search-for-matching-games [user-profile game-list user-db]
   (let [search-results (map #(hash-map (keyword (str (:appid %)))
                                        (users-with-matching-game % user-db))
@@ -82,9 +83,3 @@
 
   "run like"
   (-main "STEAM_API_KEY" (System/getenv "ACRON")))
-
-;; TODO
-;; -main currently returns a list of users who have played the game of the profiled
-;; user for roughly the same amount of time
-;; What it needs to do is return a list of games shared by though users, that the
-;; profiled user doesn't own
