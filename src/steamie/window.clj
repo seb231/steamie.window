@@ -57,14 +57,15 @@
         user))))
 
 (defn users-with-matching-game [app users]
-  (filter not-nil? (map #(let [user (first (first %))
-                               games (mapv :appid (get-games-out-db %))
-                               result (->> %
-                                           (match-game (:appid app))
-                                           (match-time app))]
-                           (if (not-nil? result)
-                             (assoc result :games games)))
-                        users)))
+  (filterv not-nil? (map #(let [user (first (first %))
+                                games (mapv :appid (get-games-out-db %))
+                                result (->> %
+                                            (match-game (:appid app))
+                                            (match-time app))]
+                            (if (not-nil? result)
+                              (assoc result :games games)))
+                         users)))
+
 ;; TODO need to use game-list to return a users games which are not in this list
 ;; another function following search?
 (defn search-for-matching-games [user-profile game-list user-db]
