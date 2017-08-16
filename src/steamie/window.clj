@@ -44,8 +44,18 @@
     (hash-map (first (keys user-db))
               (dissoc (first (filter #(= (:appid %) appid) (get-games-out-db user-db))) :appid))))
 
+(defn assoc-games-with-user [v m]
+  (let [user (first (keys m))]
+    (assoc-in m [user :games] v)))
+
 (defn not-nil? [x]
   ((complement nil?) x))
+
+(defn key-nil? [x]
+  (-> x
+      keys
+      first
+      not-nil?))
 
 (defn match-time [distribution user]
   (let [upper (get-in distribution [:poisson :upper])
@@ -57,17 +67,20 @@
         user))))
 
 (defn users-with-matching-game [app users]
-  (filterv not-nil? (map #(let [user (first (first %))
+  (filterv key-nil? (map #(let [user (first (first %))
                                 games (mapv :appid (get-games-out-db %))
                                 result (->> %
                                             (match-game (:appid app))
-                                            (match-time app))]
+                                            (match-time app)
+                                            (assoc-games-with-user games))]
                             (if (not-nil? result)
-                              (assoc result :games games)))
+                              result))
                          users)))
 
-;; TODO need to use game-list to return a users games which are not in this list
+;; TODO
+;; 1. need to use game-list to return a users games which are not in this list
 ;; another function following search?
+
 (defn search-for-matching-games [user-profile game-list user-db]
   (let [search-results (map #(hash-map (keyword (str (:appid %)))
                                        (users-with-matching-game % user-db))
