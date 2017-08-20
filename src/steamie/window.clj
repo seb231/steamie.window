@@ -37,10 +37,10 @@
        (:games (first (vals user-db)))))
 
 (defn own-game? [appid list-games]
-  ((complement nil?) (some #{appid} (map :appid list-games))))
+  ((complement nil?) (some #{appid} list-games)))
 
 (defn match-game [appid user-db]
-  (if (own-game? appid (get-games-out-db user-db))
+  (if (own-game? appid (map :appid (get-games-out-db user-db)))
     (hash-map (first (keys user-db))
               (dissoc (first (filter #(= (:appid %) appid) (get-games-out-db user-db))) :appid))))
 
