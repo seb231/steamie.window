@@ -77,10 +77,6 @@
                               result))
                          users)))
 
-;; TODO
-;; 1. need to use game-list to return a users games which are not in this list
-;; another function following search?
-
 (defn search-for-matching-games [user-profile game-list user-db]
   (let [search-results (map #(hash-map (keyword (str (:appid %)))
                                        (users-with-matching-game % user-db))
