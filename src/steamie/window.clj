@@ -87,11 +87,27 @@
                             user-profile)]
     (filterv #(if ((complement empty?) (first (vals %))) %) search-results)))
 
+(defn return-vals [x]
+  (-> x
+      vals
+      first))
+
+(defn collate-games [user-games]
+  (reduce into []
+          (map #(reduce into []
+                        (map :games
+                             (map return-vals (return-vals %)))) user-games)))
+
 (defn -main [k user]
   (let [profile (build-profile k user)
         profile-game-list (mapv :appid profile)
-        database (build-database k user)]
-    (search-for-matching-games profile profile-game-list database)))
+        database (build-database k user)
+        all-matching-db-games (-> (search-for-matching-games profile profile-game-list database)
+                                  collate-games
+                                  distinct
+                                  sort
+                                  vec)]
+    (filterv #((complement own-game?) % profile-game-list) all-matching-db-games)))
 
 (comment
 
