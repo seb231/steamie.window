@@ -66,6 +66,10 @@
                                upper)
         user))))
 
+;;; TODO
+;;; Here is where processing is slow
+;;; this function searches 5000+ users for every game in the profile
+;;; in this case that is 38 games
 (defn users-with-matching-game [app users]
   (filterv key-nil? (map #(let [user (first (first %))
                                 games (mapv :appid (get-games-out-db %))
@@ -94,7 +98,11 @@
                         (map :games
                              (map return-vals (return-vals %)))) user-games)))
 
-(defn -main [k user]
+;;; TODO
+;;; popularity is to naive to indicate interesting new game suggestions
+;;; suggest building profile for every user, working out which games
+;;; they spend the most time playing, return these (minus games
+;;; the original profile already have)
 (defn count-occurrence [x list]
   (->> list
        (filter #{x})
@@ -139,4 +147,4 @@
 
 (comment
   "run like"
-  (-main "STEAM_API_KEY" (System/getenv "ACRON")))
+  (-main "STEAM_API_KEY" (System/getenv "ACRON")) 5)
