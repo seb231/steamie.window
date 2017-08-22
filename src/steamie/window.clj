@@ -95,17 +95,48 @@
                              (map return-vals (return-vals %)))) user-games)))
 
 (defn -main [k user]
+(defn count-occurrence [x list]
+  (->> list
+       (filter #{x})
+       count))
+
+(defn sort-map-by-val [m]
+  (into (sorted-map-by (fn [key1 key2]
+                         (compare [(get m key2) key2]
+                                  [(get m key1) key1])))
+        m))
+
+(defn take-n-into-map [n m]
+  (->> m
+       (take n)
+       (into {})))
+
+(defn -main [k user n]
   (let [profile (build-profile k user)
+        _ (println "profile loaded!")
         profile-game-list (mapv :appid profile)
+        _ (println "game list retrieved!")
+        _ (println "collecting database...")
         database (build-database k user)
+        _ (println "database built!")
+        _ (println "matching games...")
         all-matching-db-games (-> (search-for-matching-games profile profile-game-list database)
                                   collate-games
-                                  distinct
-                                  sort
-                                  vec)]
-    (filterv #((complement own-game?) % profile-game-list) all-matching-db-games)))
+                                  vec)
+        _ (println "games matched!")
+        unique-games (->> all-matching-db-games
+                          distinct
+                          sort
+                          (filterv #((complement own-game?) % profile-game-list)))
+        _ (println (str "your top " n " games are..."))]
+    (->> unique-games
+         (mapv #(hash-map (keyword (str %))
+                          (count-occurrence % all-matching-db-games)))
+         (into {})
+         sort-map-by-val
+         (take-n-into-map n)
+         sort-map-by-val)))
 
 (comment
-
   "run like"
   (-main "STEAM_API_KEY" (System/getenv "ACRON")))
