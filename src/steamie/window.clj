@@ -36,8 +36,11 @@
                   :time (:playtime_forever %))
        (:games (first (vals user-db)))))
 
+(defn not-nil? [x]
+  ((complement nil?) x))
+
 (defn own-game? [appid list-games]
-  ((complement nil?) (some #{appid} list-games)))
+  (not-nil? (some #{appid} list-games)))
 
 (defn match-game [appid user-db]
   (if (own-game? appid (map :appid (get-games-out-db user-db)))
@@ -47,9 +50,6 @@
 (defn assoc-games-with-user [v m]
   (let [user (first (keys m))]
     (assoc-in m [user :games] v)))
-
-(defn not-nil? [x]
-  ((complement nil?) x))
 
 (defn key-nil? [x]
   (-> x
