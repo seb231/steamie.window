@@ -1,7 +1,8 @@
 (ns steamie.window
   (:require [steamweb.core :as steam]
             [clojure.set :as set]
-            [steamie.database :refer :all]))
+            [steamie.database :refer :all])
+  (:gen-class))
 
 (defn get-games [owned-games]
   (get-in owned-games [:response :games]))
