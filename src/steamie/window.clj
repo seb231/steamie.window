@@ -120,6 +120,8 @@
        (take n)
        (into {})))
 
+;;; TODO
+;;; turn into cmd line tool?
 (defn -main [k user n]
   (let [profile (build-profile k user)
         _ (println "profile loaded!")
@@ -148,4 +150,4 @@
 
 (comment
   "run like"
-  (-main "STEAM_API_KEY" (System/getenv "ACRON")) 5)
+  (-main "STEAM_API_KEY" (System/getenv "ACRON") 10))
