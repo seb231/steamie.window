@@ -100,7 +100,7 @@
                              (map return-vals (return-vals %)))) user-games)))
 
 ;;; TODO
-;;; popularity is to naive to indicate interesting new game suggestions
+;;; popularity is too naive to indicate interesting new game suggestions
 ;;; suggest building profile for every user, working out which games
 ;;; they spend the most time playing, return these (minus games
 ;;; the original profile already have)
