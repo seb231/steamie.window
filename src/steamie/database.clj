@@ -5,6 +5,12 @@
 (defn get-friends-list [api-key steam-id]
   (map :steamid (get-in (steam/friend-list (System/getenv api-key) steam-id) [:friendslist :friends])))
 
+(defn collect-database
+  [k user-list]
+  (map #(-> (steam/owned-games (System/getenv k) %)
+            (set/rename-keys  {:response (keyword %)}))
+       user-list))
+
 (defn collect-users
   "Collect a list of users"
   [api-key starting-id]
@@ -12,16 +18,10 @@
         first-pass (->> init
                         (mapcat #(get-friends-list api-key %))
                         distinct)]
-    first-pass
-    #_(->> first-pass
-           (mapcat #(database-collection k %))
-           distinct)))
-
-(defn collect-database
-  [k user-list]
-  (map #(-> (steam/owned-games (System/getenv k) %)
-            (set/rename-keys  {:response (keyword %)}))
-       user-list))
+    ;;first-pass
+    (->> first-pass
+         (mapcat #(get-friends-list api-key %))
+         distinct)))
 
 (defn build-database
   [k starting-id]

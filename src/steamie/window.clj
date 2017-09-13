@@ -71,6 +71,7 @@
 ;;; Here is where processing is slow
 ;;; this function searches 5000+ users for every game in the profile
 ;;; in this case that is 38 games
+;;; this may because of how I am storing the data (repeatedly in vectors)
 (defn users-with-matching-game [app users]
   (filterv key-nil? (map #(let [user (first (first %))
                                 games (mapv :appid (get-games-out-db %))
@@ -82,7 +83,7 @@
                               result))
                          users)))
 
-(defn search-for-matching-games [user-profile game-list user-db]
+(defn search-for-matching-games [user-profile user-db]
   (let [search-results (map #(hash-map (keyword (str (:appid %)))
                                        (users-with-matching-game % user-db))
                             user-profile)]
@@ -131,7 +132,7 @@
         database (build-database k user)
         _ (println "database built!")
         _ (println "matching games...")
-        all-matching-db-games (-> (search-for-matching-games profile profile-game-list database)
+        all-matching-db-games (-> (search-for-matching-games profile database)
                                   collate-games
                                   vec)
         _ (println "games matched!")
