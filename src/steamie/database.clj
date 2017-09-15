@@ -18,10 +18,10 @@
         first-pass (->> init
                         (mapcat #(get-friends-list api-key %))
                         distinct)]
-    ;;first-pass
-    (->> first-pass
-         (mapcat #(get-friends-list api-key %))
-         distinct)))
+    first-pass
+    #_(->> first-pass
+           (mapcat #(get-friends-list api-key %))
+           distinct)))
 
 (defn build-database
   [k starting-id]

@@ -43,10 +43,14 @@
 (defn own-game? [appid list-games]
   (not-nil? (some #{appid} list-games)))
 
-(defn match-game [appid user-db]
-  (if (own-game? appid (map :appid (get-games-out-db user-db)))
-    (hash-map (first (keys user-db))
-              (dissoc (first (filter #(= (:appid %) appid) (get-games-out-db user-db))) :appid))))
+(defn in? [coll v]
+  (true? (some #(= v %) coll)))
+
+(defn match-game [appid user]
+  (if (in? (map :appid (get-games-out-db user)) appid)
+    user
+    #_(hash-map (first (keys user-db))
+                (dissoc (first (filter #(= (:appid %) appid) (get-games-out-db user-db))) :appid))))
 
 (defn assoc-games-with-user [v m]
   (let [user (first (keys m))]
@@ -58,14 +62,24 @@
       first
       not-nil?))
 
-(defn match-time [distribution user]
-  (let [upper (get-in distribution [:poisson :upper])
-        lower (get-in distribution [:poisson :lower])]
-    (if (not-nil? user)
-      (if (is-number-in-range? (:time (first (vals user)))
-                               lower
-                               upper)
-        user))))
+(defn match-time [user distribution]
+  (let [upper (:upper distribution)
+        lower (:lower distribution)]
+    (if (is-number-in-range? (:time (first (vals user)))
+                             lower
+                             upper)
+      user)))
+
+(defn filter-if-not-nil->> [x]
+  (filter not-nil? x))
+
+(defn vec-to-map [[k v]]
+  (hash-map k v))
+
+(defn new-search [profile users]
+  (filter #(map (fn [x] (-> (:appid x)
+                            (match-game %)
+                            (match-time (:poisson x)))) profile) users))
 
 ;;; TODO
 ;;; Here is where processing is slow
@@ -76,9 +90,14 @@
   (filterv key-nil? (map #(let [user (first (first %))
                                 games (mapv :appid (get-games-out-db %))
                                 result (->> %
-                                            (match-game (:appid app))
+                                            (filter (fn [x] (match-game (:appid app) x)))
+
+
                                             (match-time app)
-                                            (assoc-games-with-user games))]
+
+
+                                            (assoc-games-with-user games))
+                                ]
                             (if (not-nil? result)
                               result))
                          users)))
@@ -132,22 +151,29 @@
         database (build-database k user)
         _ (println "database built!")
         _ (println "matching games...")
-        all-matching-db-games (-> (search-for-matching-games profile database)
-                                  collate-games
-                                  vec)
+        all-matching (new-search profile database)
+        #_all-matching-db-games #_(-> (search-for-matching-games profile database)
+                                      collate-games
+                                      vec)
         _ (println "games matched!")
-        unique-games (->> all-matching-db-games
-                          distinct
+        unique-games (->> (map #(map :appid (get-games-out-db %)) all-matching)
+                          (reduce into [])
                           sort
+                          distinct
                           (filterv #((complement own-game?) % profile-game-list)))
+        #_unique-games #_(->> all-matching-db-games
+                              distinct
+                              sort
+                              (filterv #((complement own-game?) % profile-game-list)))
         _ (println (str "your top " n " games are..."))]
-    (->> unique-games
-         (mapv #(hash-map (keyword (str %))
-                          (count-occurrence % all-matching-db-games)))
-         (into {})
-         sort-map-by-val
-         (take-n-into-map n)
-         sort-map-by-val)))
+    unique-games
+    #_(->> unique-games
+           (mapv #(hash-map (keyword (str %))
+                            (count-occurrence % all-matching-db-games)))
+           (into {})
+           sort-map-by-val
+           (take-n-into-map n)
+           sort-map-by-val)))
 
 (comment
   "run like"
