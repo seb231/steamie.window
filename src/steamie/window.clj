@@ -152,28 +152,14 @@
         _ (println "database built!")
         _ (println "matching games...")
         all-matching (new-search profile database)
-        #_all-matching-db-games #_(-> (search-for-matching-games profile database)
-                                      collate-games
-                                      vec)
         _ (println "games matched!")
         unique-games (->> (map #(map :appid (get-games-out-db %)) all-matching)
                           (reduce into [])
                           sort
                           distinct
                           (filterv #((complement own-game?) % profile-game-list)))
-        #_unique-games #_(->> all-matching-db-games
-                              distinct
-                              sort
-                              (filterv #((complement own-game?) % profile-game-list)))
         _ (println (str "your top " n " games are..."))]
-    unique-games
-    #_(->> unique-games
-           (mapv #(hash-map (keyword (str %))
-                            (count-occurrence % all-matching-db-games)))
-           (into {})
-           sort-map-by-val
-           (take-n-into-map n)
-           sort-map-by-val)))
+    (take n unique-games)))
 
 (comment
   "run like"
