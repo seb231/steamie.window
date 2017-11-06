@@ -153,8 +153,8 @@
         _ (println "games matched!")
         unique-games (->> (map #(map :appid (get-games-out-db %)) all-matching)
                           (reduce into [])
-                          sort
                           distinct
+                          sort
                           (filterv #((complement own-game?) % profile-game-list)))
         _ (println (str "your top " n " games are..."))]
     (take n unique-games)))
