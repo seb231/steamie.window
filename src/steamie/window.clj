@@ -48,9 +48,8 @@
 
 (defn match-game [appid user]
   (if (in? (map :appid (get-games-out-db user)) appid)
-    user
-    #_(hash-map (first (keys user-db))
-                (dissoc (first (filter #(= (:appid %) appid) (get-games-out-db user-db))) :appid))))
+    (hash-map (first (keys user))
+              (dissoc (first (filter #(= (:appid %) appid) (get-games-out-db user))) :appid))))
 
 (defn assoc-games-with-user [v m]
   (let [user (first (keys m))]
