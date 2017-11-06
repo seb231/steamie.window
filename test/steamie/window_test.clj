@@ -29,7 +29,7 @@
   ""
   (let [user (match-game 10 (first example-database))]
     (is (= {:76561197960375033 {:time 72}}
-           (match-time foo {:upper 80.80202518666516, :lower 49.197974813334845}) ))))
+           (match-time user {:upper 80.80202518666516, :lower 49.197974813334845}) ))))
 
 (deftest filter-by-playtime-test
   ""
