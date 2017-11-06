@@ -76,12 +76,11 @@
 (defn vec-to-map [[k v]]
   (hash-map k v))
 
-(defn new-search [profile users]
+(defn filter-by-playtime [profile users]
   (filter #(map (fn [x] (-> (:appid x)
                             (match-game %)
                             (match-time (:poisson x)))) profile) users))
 
-;;; TODO
 ;;; Here is where processing is slow
 ;;; this function searches 5000+ users for every game in the profile
 ;;; in this case that is 38 games
@@ -151,7 +150,7 @@
         database (build-database k user)
         _ (println "database built!")
         _ (println "matching games...")
-        all-matching (new-search profile database)
+        all-matching (filter-by-playtime profile database)
         _ (println "games matched!")
         unique-games (->> (map #(map :appid (get-games-out-db %)) all-matching)
                           (reduce into [])
