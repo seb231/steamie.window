@@ -51,16 +51,6 @@
     (hash-map (first (keys user))
               (dissoc (first (filter #(= (:appid %) appid) (get-games-out-db user))) :appid))))
 
-;; (defn assoc-games-with-user [v m]
-;;   (let [user (first (keys m))]
-;;     (assoc-in m [user :games] v)))
-
-;; (defn key-nil? [x]
-;;   (-> x
-;;       keys
-;;       first
-;;       not-nil?))
-
 (defn match-time [user distribution]
   (let [upper (:upper distribution)
         lower (:lower distribution)]
@@ -69,66 +59,10 @@
                              upper)
       user)))
 
-;; (defn filter-if-not-nil->> [x]
-;;   (filter not-nil? x))
-
-;; (defn vec-to-map [[k v]]
-;;   (hash-map k v))
-
 (defn filter-by-playtime [profile users]
   (filter #(map (fn [x] (-> (:appid x)
                             (match-game %)
                             (match-time (:poisson x)))) profile) users))
-
-
-;; (defn users-with-matching-game [app users]
-;;   (filterv key-nil? (map #(let [user (first (first %))
-;;                                 games (mapv :appid (get-games-out-db %))
-;;                                 result (->> %
-;;                                             (filter (fn [x] (match-game (:appid app) x)))
-
-
-;;                                             (match-time app)
-
-
-;;                                             (assoc-games-with-user games))
-;;                                 ]
-;;                             (if (not-nil? result)
-;;                               result))
-;;                          users)))
-
-;; (defn search-for-matching-games [user-profile user-db]
-;;   (let [search-results (map #(hash-map (keyword (str (:appid %)))
-;;                                        (users-with-matching-game % user-db))
-;;                             user-profile)]
-;;     (filterv #(if ((complement empty?) (first (vals %))) %) search-results)))
-
-;; (defn return-vals [x]
-;;   (-> x
-;;       vals
-;;       first))
-
-;; (defn collate-games [user-games]
-;;   (reduce into []
-;;           (map #(reduce into []
-;;                         (map :games
-;;                              (map return-vals (return-vals %)))) user-games)))
-
-;; (defn count-occurrence [x list]
-;;   (->> list
-;;        (filter #{x})
-;;        count))
-
-;; (defn sort-map-by-val [m]
-;;   (into (sorted-map-by (fn [key1 key2]
-;;                          (compare [(get m key2) key2]
-;;                                   [(get m key1) key1])))
-;;         m))
-
-;; (defn take-n-into-map [n m]
-;;   (->> m
-;;        (take n)
-;;        (into {})))
 
 (defn sort-by-playtime [user]
   (sort-by :playtime_forever > (:games (first (vals user)))))
