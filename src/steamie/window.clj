@@ -51,15 +51,15 @@
     (hash-map (first (keys user))
               (dissoc (first (filter #(= (:appid %) appid) (get-games-out-db user))) :appid))))
 
-(defn assoc-games-with-user [v m]
-  (let [user (first (keys m))]
-    (assoc-in m [user :games] v)))
+;; (defn assoc-games-with-user [v m]
+;;   (let [user (first (keys m))]
+;;     (assoc-in m [user :games] v)))
 
-(defn key-nil? [x]
-  (-> x
-      keys
-      first
-      not-nil?))
+;; (defn key-nil? [x]
+;;   (-> x
+;;       keys
+;;       first
+;;       not-nil?))
 
 (defn match-time [user distribution]
   (let [upper (:upper distribution)
@@ -69,77 +69,72 @@
                              upper)
       user)))
 
-(defn filter-if-not-nil->> [x]
-  (filter not-nil? x))
+;; (defn filter-if-not-nil->> [x]
+;;   (filter not-nil? x))
 
-(defn vec-to-map [[k v]]
-  (hash-map k v))
+;; (defn vec-to-map [[k v]]
+;;   (hash-map k v))
 
 (defn filter-by-playtime [profile users]
   (filter #(map (fn [x] (-> (:appid x)
                             (match-game %)
                             (match-time (:poisson x)))) profile) users))
 
-;;; Here is where processing is slow
-;;; this function searches 5000+ users for every game in the profile
-;;; in this case that is 38 games
-;;; this may because of how I am storing the data (repeatedly in vectors)
-(defn users-with-matching-game [app users]
-  (filterv key-nil? (map #(let [user (first (first %))
-                                games (mapv :appid (get-games-out-db %))
-                                result (->> %
-                                            (filter (fn [x] (match-game (:appid app) x)))
+
+;; (defn users-with-matching-game [app users]
+;;   (filterv key-nil? (map #(let [user (first (first %))
+;;                                 games (mapv :appid (get-games-out-db %))
+;;                                 result (->> %
+;;                                             (filter (fn [x] (match-game (:appid app) x)))
 
 
-                                            (match-time app)
+;;                                             (match-time app)
 
 
-                                            (assoc-games-with-user games))
-                                ]
-                            (if (not-nil? result)
-                              result))
-                         users)))
+;;                                             (assoc-games-with-user games))
+;;                                 ]
+;;                             (if (not-nil? result)
+;;                               result))
+;;                          users)))
 
-(defn search-for-matching-games [user-profile user-db]
-  (let [search-results (map #(hash-map (keyword (str (:appid %)))
-                                       (users-with-matching-game % user-db))
-                            user-profile)]
-    (filterv #(if ((complement empty?) (first (vals %))) %) search-results)))
+;; (defn search-for-matching-games [user-profile user-db]
+;;   (let [search-results (map #(hash-map (keyword (str (:appid %)))
+;;                                        (users-with-matching-game % user-db))
+;;                             user-profile)]
+;;     (filterv #(if ((complement empty?) (first (vals %))) %) search-results)))
 
-(defn return-vals [x]
-  (-> x
-      vals
-      first))
+;; (defn return-vals [x]
+;;   (-> x
+;;       vals
+;;       first))
 
-(defn collate-games [user-games]
-  (reduce into []
-          (map #(reduce into []
-                        (map :games
-                             (map return-vals (return-vals %)))) user-games)))
+;; (defn collate-games [user-games]
+;;   (reduce into []
+;;           (map #(reduce into []
+;;                         (map :games
+;;                              (map return-vals (return-vals %)))) user-games)))
+
+;; (defn count-occurrence [x list]
+;;   (->> list
+;;        (filter #{x})
+;;        count))
+
+;; (defn sort-map-by-val [m]
+;;   (into (sorted-map-by (fn [key1 key2]
+;;                          (compare [(get m key2) key2]
+;;                                   [(get m key1) key1])))
+;;         m))
+
+;; (defn take-n-into-map [n m]
+;;   (->> m
+;;        (take n)
+;;        (into {})))
 
 ;;; TODO
 ;;; popularity is too naive to indicate interesting new game suggestions
 ;;; suggest building profile for every user, working out which games
 ;;; they spend the most time playing, return these (minus games
 ;;; the original profile already have)
-(defn count-occurrence [x list]
-  (->> list
-       (filter #{x})
-       count))
-
-(defn sort-map-by-val [m]
-  (into (sorted-map-by (fn [key1 key2]
-                         (compare [(get m key2) key2]
-                                  [(get m key1) key1])))
-        m))
-
-(defn take-n-into-map [n m]
-  (->> m
-       (take n)
-       (into {})))
-
-;;; TODO
-;;; turn into cmd line tool?
 (defn -main [k user n]
   (let [profile (build-profile k user)
         _ (println "profile loaded!")
