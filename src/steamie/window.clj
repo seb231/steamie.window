@@ -130,6 +130,11 @@
 ;;        (take n)
 ;;        (into {})))
 
+(defn sort-by-playtime [user]
+  (sort-by :playtime_forever > (:games (first (vals user)))))
+
+;;; TODO
+;;; turn into cmd line tool?
 ;;; TODO
 ;;; popularity is too naive to indicate interesting new game suggestions
 ;;; suggest building profile for every user, working out which games
