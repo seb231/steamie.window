@@ -35,3 +35,8 @@
   ""
   (is (= (filter-by-playtime example-user-profile example-database)
          '({:76561197960375033 {:game_count 10, :games [{:appid 10, :playtime_forever 72} {:appid 20, :playtime_forever 0} {:appid 30, :playtime_forever 0} {:appid 40, :playtime_forever 0} {:appid 50, :playtime_forever 64} {:appid 60, :playtime_forever 0} {:appid 70, :playtime_forever 0} {:appid 130, :playtime_forever 0} {:appid 220, :playtime_forever 430} {:appid 240, :playtime_forever 6}]}} {:76561197960667429 {:game_count 10, :games [{:appid 550, :playtime_forever 900} {:appid 20, :playtime_forever 0} {:appid 30, :playtime_forever 0} {:appid 40, :playtime_forever 0} {:appid 50, :playtime_forever 0} {:appid 60, :playtime_forever 0} {:appid 70, :playtime_forever 1} {:appid 130, :playtime_forever 0} {:appid 80, :playtime_forever 0} {:appid 100, :playtime_forever 0}]}} {:76561197969555013 {:game_count 10, :games [{:appid 10, :playtime_forever 79} {:appid 20, :playtime_forever 0} {:appid 30, :playtime_forever 0} {:appid 40, :playtime_forever 0} {:appid 50, :playtime_forever 64} {:appid 60, :playtime_forever 0} {:appid 70, :playtime_forever 0} {:appid 130, :playtime_forever 0} {:appid 220, :playtime_forever 430} {:appid 230, :playtime_forever 6}]}}))))
+
+(deftest sort-by-playtime-test
+  ""
+  (is (= (sort-by-playtime (first example-database))
+         '({:appid 220, :playtime_forever 430} {:appid 10, :playtime_forever 72} {:appid 50, :playtime_forever 64} {:appid 240, :playtime_forever 6} {:appid 20, :playtime_forever 0} {:appid 30, :playtime_forever 0} {:appid 40, :playtime_forever 0} {:appid 60, :playtime_forever 0} {:appid 70, :playtime_forever 0} {:appid 130, :playtime_forever 0}))))
