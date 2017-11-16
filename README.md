@@ -14,7 +14,7 @@ The latest version of this program returns _n_ games as identified by matching p
 
 Games are ranked by playtimes per game per user, so that a user in the database has their own games ranked in popularity in terms of time played. These top games can then be taken and those not shared woth the users who share a similar profile to the profiled user can be ranked in terms of overall time played per game.
 
-Further details on how the model works can be found in the accompanying ![flowchart](docs/flowchart.pdf).
+Further details on how the model works can be found in the accompanying ![flowchart](doc/flowchart.pdf).
 
 # The Database
 
