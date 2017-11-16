@@ -43,11 +43,11 @@
 (defn own-game? [appid list-games]
   (not-nil? (some #{appid} list-games)))
 
-(defn in? [coll v]
+(defn in-coll? [coll v]
   (true? (some #(= v %) coll)))
 
 (defn match-game [appid user]
-  (if (in? (map :appid (get-games-out-db user)) appid)
+  (if (in-coll? (map :appid (get-games-out-db user)) appid)
     (hash-map (first (keys user))
               (dissoc (first (filter #(= (:appid %) appid) (get-games-out-db user))) :appid))))
 
