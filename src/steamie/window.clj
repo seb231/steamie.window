@@ -151,7 +151,11 @@
         _ (println "matching games...")
         all-matching (filter-by-playtime profile database)
         _ (println "games matched!")
-        unique-games (->> (mapcat #(map :appid (sort-by-playtime %)) all-matching)
+        unique-games (->> (mapcat (fn [games] (map :appid (->> games
+                                                               sort-by-playtime
+                                                               (filter #(< 0 (:playtime_forever %)))
+                                                               (take 5))))
+                                  all-matching)
                           distinct
                           (filter #((complement own-game?) % profile-game-list)))
         _ (println (str "your top " n " games are..."))]
