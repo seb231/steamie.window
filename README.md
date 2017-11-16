@@ -4,7 +4,7 @@
 
 Spin up a REPL and call:
 
-`(-main <STEAM-KEY> <STEAM-USER-ID> n>`
+`(-main <STEAM-KEY> <STEAM-USER-ID> n)`
 
 Where STEAM-KEY is a Steam API key you can get ![here](http://steamcommunity.com/dev/apikey), STEAM-USER-ID is your Steam user ID usually found in your profile's URL, and _n_ is the number of game recommendations you'd like to return.
 
