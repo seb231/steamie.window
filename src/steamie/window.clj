@@ -135,11 +135,6 @@
 
 ;;; TODO
 ;;; turn into cmd line tool?
-;;; TODO
-;;; popularity is too naive to indicate interesting new game suggestions
-;;; suggest building profile for every user, working out which games
-;;; they spend the most time playing, return these (minus games
-;;; the original profile already have)
 (defn -main [k user n]
   (let [profile (build-profile k user)
         _ (println "profile loaded!")
