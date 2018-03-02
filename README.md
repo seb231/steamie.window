@@ -1,5 +1,9 @@
 # steamie.window
 
+This project was influenced by this ![article](https://arstechnica.com/gaming/2014/04/introducing-steam-gauge-ars-reveals-steams-most-popular-games/) and an attempt to get to grips with Clojure and build my first app-like program.
+
+Everyone has backlogs of things to get do, and perhaps none more so than gamers on ![Steam](www.store.steampowered.com), what with their regular crazy sales. Users of Steam have often complained about how deep the Steam library is and how hard it can be to discover new things. Using the data available via the Steam API, I aimed to compare a users playstyle (both games played and amount of time played) with a database of other users, with the aim of identifying users with similar tastes and making suggestion to the original user based on other users game library.
+
 ## Usage
 
 Spin up a REPL and call:
